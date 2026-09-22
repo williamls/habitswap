@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Habit swap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#FBF7EF; --ink:#1E2A22; --card:#FFFFFF; --border:#E4DFD3; --muted:#6B7A6E;
+  --green:#2F6B4F; --terracotta:#C9633B; --danger:#B3452F;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#181C18; --ink:#EDEBE2; --card:#20251F; --border:#333A30; --muted:#9CA89B;
+    --green:#5FA97D; --terracotta:#E2916A; --danger:#E48B72;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#181C18; --ink:#EDEBE2; --card:#20251F; --border:#333A30; --muted:#9CA89B;
+  --green:#5FA97D; --terracotta:#E2916A; --danger:#E48B72;
+}
+html,body{height:100%;margin:0;background:var(--bg);}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+*{box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);}
+.display{font-family:'Fraunces',serif;}
+.screen{display:flex;flex-direction:column;height:100%;max-width:460px;margin:0 auto;padding:24px;padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));}
+.screen[hidden]{display:none;}
+.backbtn{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:20px;background:var(--card);border:1px solid var(--border);text-decoration:none;color:var(--ink);margin-bottom:16px;flex-shrink:0;}
+.eyebrow{font-size:13px;color:var(--muted);font-weight:500;}
+h1.display{font-size:24px;font-weight:600;margin:4px 0 0 0;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;}
+.streakcard{padding:28px 24px;display:flex;flex-direction:column;gap:4px;}
+.streaknum{font-family:'Fraunces',serif;font-size:44px;font-weight:600;color:var(--green);line-height:1;}
+.statsrow{display:flex;gap:12px;margin-top:12px;}
+.statcard{flex:1;padding:16px;}
+.statnum{font-family:'Fraunces',serif;font-size:20px;font-weight:600;}
+.statlabel{font-size:12px;color:var(--muted);}
+.spacer{flex:1;}
+button,.btn{font-family:inherit;cursor:pointer;border:none;text-decoration:none;text-align:center;}
+.btn-primary{display:block;width:100%;padding:18px;background:var(--terracotta);color:#FBF7EF;border-radius:14px;font-size:16px;font-weight:600;}
+.btn-primary.green{background:var(--green);}
+.btn-secondary{display:block;width:100%;padding:16px;background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:14px;font-size:15px;font-weight:500;margin-top:12px;}
+.linkmuted{display:block;text-align:center;font-size:14px;color:var(--muted);text-decoration:underline;background:none;padding:10px 8px;border:none;width:100%;}
+.urgechip{display:inline-flex;align-items:center;gap:10px;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;width:fit-content;margin-top:24px;}
+label{font-size:13px;color:var(--muted);font-weight:500;display:block;margin-bottom:6px;}
+input[type="text"],input[type="tel"]{width:100%;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;font-size:15px;color:var(--ink);font-family:inherit;}
+.field{margin-top:16px;}
+.errortext{font-size:13px;color:var(--danger);margin-top:6px;display:none;}
+.errortext.show{display:block;}
+.pmcard{padding:14px 16px;display:flex;align-items:center;gap:12px;border:1.5px solid var(--green);border-radius:12px;background:var(--card);}
+.dot{width:18px;height:18px;border-radius:50%;border:5px solid var(--green);flex-shrink:0;box-sizing:border-box;}
+.causecard{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;}
+.changelink{font-size:13px;color:var(--green);font-weight:600;background:none;border:none;padding:6px;}
+.amountcard{padding:24px;text-align:center;}
+.amountnum{font-family:'Fraunces',serif;font-size:40px;font-weight:600;color:var(--terracotta);}
+.photobox{height:170px;border:1px dashed var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;flex-shrink:0;}
+.quote{font-family:'Fraunces',serif;font-style:italic;font-size:17px;line-height:1.5;}
+.sectiongap{margin-top:16px;}
+.hint{font-size:12px;color:var(--muted);text-align:center;}
+.toast{font-size:13px;color:var(--green);text-align:center;min-height:18px;}
+a{color:inherit;}
+textarea.csvbox{width:100%;height:140px;font-family:monospace;font-size:11px;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--ink);margin-top:10px;}
+</style>
+</head>
+<body>
+
+<section class="screen" id="view-login">
+ <div class="eyebrow">Welcome</div>
+ <h1 class="display">Let's get you set up</h1>
+ <div class="eyebrow sectiongap">We use this to match your gifts to your MoMo confirmations</div>
+ <div class="field">
+  <label for="login-name">Your name</label>
+  <input type="text" id="login-name" autocomplete="name" placeholder="e.g. Grace Nakato">
+  <div class="errortext" id="login-name-error">Enter your name first</div>
+ </div>
+ <div class="field">
+  <label for="login-phone">MTN phone number</label>
+  <input type="tel" id="login-phone" autocomplete="tel" placeholder="07XX XXX XXX">
+  <div class="errortext" id="login-phone-error">Enter a valid phone number</div>
+ </div>
+ <div class="spacer"></div>
+ <button type="button" class="btn-primary green" id="btn-login">Continue</button>
+</section>
+
+<section class="screen" id="view-today" hidden>
+ <div class="eyebrow" id="today-greeting">Good to see you</div>
+ <h1 class="display">Your streak</h1>
+ <div class="card streakcard sectiongap">
+  <span class="eyebrow" id="habit-name">Quitting soda</span>
+  <span class="streaknum" id="streak-days">0 days</span>
+  <span class="eyebrow" id="streak-since">since —</span>
+ </div>
+ <div class="statsrow">
+  <div class="card statcard"><span class="statnum" id="stat-given" style="color:var(--terracotta);">UGX 0</span><span class="statlabel">given so far</span></div>
+  <div class="card statcard"><span class="statnum" id="stat-gifts" style="color:var(--green);">0 gifts</span><span class="statlabel" id="stat-cause">sent</span></div>
+ </div>
+ <div class="spacer"></div>
+ <a class="btn-primary" href="#urge">I have an urge right now</a>
+ <a class="linkmuted" href="#impact">See your last impact update</a>
+ <button type="button" class="linkmuted" id="btn-switch-user" style="text-decoration:none;">Not <span id="switch-name">you</span>? Switch user</button>
+ <button type="button" class="linkmuted" id="btn-export" style="text-decoration:none;">Export data (admin)</button>
+ <div class="toast" id="export-toast" aria-live="polite"></div>
+ <textarea class="csvbox" id="csv-box" readonly hidden></textarea>
+</section>
+
+<section class="screen" id="view-urge" hidden>
+ <a class="backbtn" href="#today" aria-label="Back to today">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+ </a>
+ <h1 class="display">What's going on?</h1>
+ <div class="eyebrow sectiongap">Be honest — this is just for you</div>
+ <div class="urgechip">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--terracotta)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2h8l1 5H7z"/><path d="M6 7h12l-1 13a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/></svg>
+  <span style="font-weight:600;" id="urge-habit">Soda</span>
+ </div>
+ <div class="spacer"></div>
+ <a class="btn-primary green" href="#contribute">I resisted</a>
+ <a class="btn-secondary" href="#today" id="btn-gaveIn">I gave in</a>
+</section>
+
+<section class="screen" id="view-contribute" hidden>
+ <a class="backbtn" href="#urge" aria-label="Back">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+ </a>
+ <h1 class="display">Nice. Turn that into a gift</h1>
+ <div class="eyebrow sectiongap">Here's what that would have cost</div>
+ <div class="card amountcard sectiongap"><span class="amountnum" id="gift-amount">UGX 1,500</span></div>
+ <div class="sectiongap">
+  <label id="cause-lbl">Giving to</label>
+  <div class="causecard" role="group" aria-labelledby="cause-lbl">
+   <span style="font-size:15px;font-weight:600;" id="cause-label">Amina — school books</span>
+   <button type="button" class="changelink" id="btn-change-cause">Change</button>
+  </div>
+ </div>
+ <div class="sectiongap">
+  <label id="pm-lbl">Payment method</label>
+  <div class="pmcard" role="group" aria-labelledby="pm-lbl"><span class="dot"></span>
+   <div><div style="font-size:15px;font-weight:600;">MTN Mobile Money</div><div style="font-size:12px;color:var(--muted);" id="pm-sub">You'll confirm the amount on your phone</div></div>
+  </div>
+ </div>
+ <div class="spacer"></div>
+ <a class="btn-primary green" href="tel:*165*3*21952859%23" id="btn-send">Send gift</a>
+ <div class="hint sectiongap">Dials *165*3*21952859# on MTN</div>
+</section>
+
+<section class="screen" id="view-impact" hidden>
+ <a class="backbtn" href="#today" aria-label="Back to today">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+ </a>
+ <h1 class="display" id="impact-title">Amina says thank you</h1>
+ <div class="photobox sectiongap">[photo from recipient]</div>
+ <div class="card sectiongap"><span class="quote" id="impact-quote">"Because of gifts like yours, I bought the books I needed for this term."</span></div>
+ <div class="statsrow">
+  <div class="card statcard"><span class="statnum" id="impact-gifts" style="color:var(--terracotta);">0 gifts</span><span class="statlabel">sent so far</span></div>
+  <div class="card statcard"><span class="statnum" id="impact-streak" style="color:var(--green);">0 days</span><span class="statlabel">soda free</span></div>
+ </div>
+ <div class="spacer"></div>
+ <button type="button" class="btn-primary green" id="btn-share">Share your streak</button>
+ <div class="toast" id="share-toast" aria-live="polite"></div>
+ <a class="linkmuted" href="#today">Back to today</a>
+</section>
+
+<script>
+(function(){
+  var STORAGE_KEY='habitswap_state_v2';
+
+  // Auto-push to Google Sheet — only works when this file is hosted
+  // outside Claude's artifact sandbox (GitHub Pages, Netlify, Vercel, etc).
+  // Inside the claude.ai preview this fetch is blocked and fails silently;
+  // the local save and CSV export above still work as the fallback either way.
+  var SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwzjL4MpvAxRqt0QfEGkUXhdY685W2jpZKvP3-b2oe5BZVfumHopmqP5Lb60raQIu8/exec';
+  var SHEET_SECRET = 'Qwerty@321'; // must match SECRET in Code.gs
+
+  function pushToSheet(entry, causeLabel){
+    if(!SHEET_ENDPOINT || SHEET_ENDPOINT.indexOf('PASTE_YOUR')>-1) return;
+    try{
+      fetch(SHEET_ENDPOINT, {
+        method:'POST',
+        mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({
+          secret: SHEET_SECRET,
+          name: entry.name,
+          phone: entry.phone,
+          cause: causeLabel,
+          amount: entry.amount,
+          currency: state.currency,
+          date: entry.ts
+        })
+      }).catch(function(){});
+    }catch(e){}
+  }
+  var causes=[
+    {who:'Amina', label:'Amina — school books', thanks:'Because of gifts like yours, I bought the books I needed for this term.'},
+    {who:'The clean water fund', label:'Clean water fund', thanks:'Your gifts are helping fund a new well for our village.'},
+    {who:'David', label:'David — clinic visit', thanks:'Thank you — I was able to see a doctor this week.'}
+  ];
+
+  function daysAgoIso(n){ var d=new Date(); d.setDate(d.getDate()-n); return d.toISOString(); }
+
+  function loadState(){
+    var s=null;
+    try{ var raw=localStorage.getItem(STORAGE_KEY); if(raw) s=JSON.parse(raw); }catch(e){}
+    if(!s){
+      var quit=new Date(); quit.setDate(quit.getDate()-12);
+      s={
+        habitName:'Quitting soda',
+        vice:'Soda',
+        itemPrice:1500,
+        currency:'UGX',
+        quitDate:quit.toISOString(),
+        causeIndex:0,
+        currentUser:null,
+        log:[
+          {ts:daysAgoIso(10),type:'sent',amount:1500,causeIndex:0,name:'Demo user',phone:'—'},
+          {ts:daysAgoIso(8),type:'sent',amount:1500,causeIndex:0,name:'Demo user',phone:'—'},
+          {ts:daysAgoIso(6),type:'sent',amount:1500,causeIndex:1,name:'Demo user',phone:'—'},
+          {ts:daysAgoIso(5),type:'sent',amount:1500,causeIndex:0,name:'Demo user',phone:'—'},
+          {ts:daysAgoIso(3),type:'sent',amount:1500,causeIndex:2,name:'Demo user',phone:'—'},
+          {ts:daysAgoIso(1),type:'sent',amount:1500,causeIndex:0,name:'Demo user',phone:'—'}
+        ]
+      };
+    }
+    return s;
+  }
+  function saveState(s){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }catch(e){}
+  }
+  var state=loadState();
+  saveState(state);
+
+  async function claudeUse(name){
+    try{
+      if(!window.claude || typeof window.claude.use!=='function') return null;
+      return await window.claude.use(name);
+    }catch(e){ return null; }
+  }
+
+  function fmtMoney(n,cur){ return cur+' '+n.toLocaleString('en-US'); }
+  function streakDays(){
+    var ms=Date.now()-new Date(state.quitDate).getTime();
+    return Math.max(0,Math.floor(ms/86400000));
+  }
+  function stats(){
+    var given=0,count=0;
+    state.log.forEach(function(e){ if(e.type==='sent'){ given+=e.amount; count++; } });
+    return {given:given,count:count};
+  }
+  function lastGiftEntry(){
+    for(var i=state.log.length-1;i>=0;i--){ if(state.log[i].type==='sent') return state.log[i]; }
+    return null;
+  }
+
+  function firstName(full){ return (full||'').trim().split(/\s+/)[0] || 'there'; }
+
+  function renderToday(){
+    var u=state.currentUser;
+    document.getElementById('today-greeting').textContent = u ? ('Hi ' + firstName(u.name)) : 'Good to see you';
+    document.getElementById('switch-name').textContent = u ? firstName(u.name) : 'you';
+    document.getElementById('habit-name').textContent=state.habitName;
+    var d=streakDays();
+    document.getElementById('streak-days').textContent=d+' day'+(d===1?'':'s');
+    var since=new Date(state.quitDate);
+    document.getElementById('streak-since').textContent='since '+since.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+    var st=stats();
+    document.getElementById('stat-given').textContent=fmtMoney(st.given,state.currency);
+    document.getElementById('stat-gifts').textContent=st.count+' gift'+(st.count===1?'':'s');
+    document.getElementById('stat-cause').textContent='sent to '+causes[state.causeIndex].who;
+  }
+  function renderUrge(){
+    document.getElementById('urge-habit').textContent=state.vice;
+  }
+  function renderContribute(){
+    document.getElementById('gift-amount').textContent=fmtMoney(state.itemPrice,state.currency);
+    document.getElementById('cause-label').textContent=causes[state.causeIndex].label;
+    var u=state.currentUser;
+    document.getElementById('pm-sub').textContent = u ? ('Confirm on '+u.phone) : "You'll confirm the amount on your phone";
+  }
+  function renderImpact(){
+    var entry=lastGiftEntry();
+    var ci=entry?entry.causeIndex:state.causeIndex;
+    var cause=causes[ci];
+    document.getElementById('impact-title').textContent=cause.who+' says thank you';
+    document.getElementById('impact-quote').textContent='"'+cause.thanks+'"';
+    var st=stats();
+    document.getElementById('impact-gifts').textContent=st.count+' gift'+(st.count===1?'':'s');
+    var d=streakDays();
+    document.getElementById('impact-streak').textContent=d+' day'+(d===1?'':'s');
+  }
+
+  var views=['login','today','urge','contribute','impact'];
+  function showView(name){
+    if(!state.currentUser) name='login';
+    if(views.indexOf(name)===-1) name='today';
+    views.forEach(function(v){
+      var el=document.getElementById('view-'+v);
+      if(!el) return;
+      el.hidden = (v!==name);
+    });
+    if(name==='today') renderToday();
+    if(name==='urge') renderUrge();
+    if(name==='contribute') renderContribute();
+    if(name==='impact') renderImpact();
+    window.scrollTo(0,0);
+  }
+  function currentHash(){ return (location.hash||'#today').slice(1); }
+  window.addEventListener('hashchange', function(){ showView(currentHash()); });
+
+  document.getElementById('btn-login').addEventListener('click', function(){
+    var nameInput=document.getElementById('login-name');
+    var phoneInput=document.getElementById('login-phone');
+    var nameErr=document.getElementById('login-name-error');
+    var phoneErr=document.getElementById('login-phone-error');
+    var name=nameInput.value.trim();
+    var phone=phoneInput.value.trim();
+    var ok=true;
+    if(!name){ nameErr.classList.add('show'); ok=false; } else { nameErr.classList.remove('show'); }
+    var digits=phone.replace(/[^0-9]/g,'');
+    if(digits.length<9){ phoneErr.classList.add('show'); ok=false; } else { phoneErr.classList.remove('show'); }
+    if(!ok) return;
+    state.currentUser={name:name, phone:phone};
+    saveState(state);
+    location.hash='#today';
+    showView('today');
+  });
+
+  document.getElementById('btn-switch-user').addEventListener('click', function(){
+    var u=state.currentUser;
+    if(u){
+      document.getElementById('login-name').value=u.name;
+      document.getElementById('login-phone').value=u.phone;
+    }
+    state.currentUser=null;
+    saveState(state);
+    showView('login');
+  });
+
+  document.getElementById('btn-gaveIn').addEventListener('click', function(){
+    state.quitDate=new Date().toISOString();
+    saveState(state);
+  });
+
+  document.getElementById('btn-change-cause').addEventListener('click', function(){
+    state.causeIndex=(state.causeIndex+1)%causes.length;
+    saveState(state);
+    renderContribute();
+  });
+
+  document.getElementById('btn-send').addEventListener('click', function(){
+    var u=state.currentUser || {name:'Unknown',phone:'—'};
+    var entry={ts:new Date().toISOString(),type:'sent',amount:state.itemPrice,causeIndex:state.causeIndex,name:u.name,phone:u.phone};
+    state.log.push(entry);
+    saveState(state);
+    pushToSheet(entry, causes[state.causeIndex].label);
+    location.hash='#impact';
+    showView('impact');
+  });
+
+  document.getElementById('btn-share').addEventListener('click', function(){
+    var st=stats();
+    var d=streakDays();
+    var text=d+' days without '+state.vice.toLowerCase()+', '+st.count+' gifts sent. Small swaps add up.';
+    var toast=document.getElementById('share-toast');
+    if(navigator.share){
+      navigator.share({title:'My streak',text:text}).catch(function(){});
+    } else if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        toast.textContent='Copied to clipboard';
+        setTimeout(function(){ toast.textContent=''; },2000);
+      }).catch(function(){ toast.textContent=text; });
+    } else {
+      toast.textContent=text;
+    }
+  });
+
+  function buildCsv(){
+    var rows=[['Name','Phone','Cause','Amount','Currency','Date']];
+    state.log.forEach(function(e){
+      if(e.type!=='sent') return;
+      var cause=causes[e.causeIndex] ? causes[e.causeIndex].label : '';
+      rows.push([e.name||'', e.phone||'', cause, e.amount, state.currency, new Date(e.ts).toISOString()]);
+    });
+    return rows.map(function(r){
+      return r.map(function(v){
+        var s=String(v);
+        if(s.indexOf(',')>-1 || s.indexOf('"')>-1){ s='"'+s.replace(/"/g,'""')+'"'; }
+        return s;
+      }).join(',');
+    }).join('\n');
+  }
+
+  document.getElementById('btn-export').addEventListener('click', async function(){
+    var csv=buildCsv();
+    var toast=document.getElementById('export-toast');
+    var box=document.getElementById('csv-box');
+    var downloads=await claudeUse('downloads');
+    if(downloads){
+      try{
+        await downloads.save({filename:'habit-swap-gifts.csv', data:csv});
+        toast.textContent='Saved. Import this file into your Google Sheet.';
+        return;
+      }catch(e){}
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      try{
+        await navigator.clipboard.writeText(csv);
+        toast.textContent='CSV copied — paste into your Google Sheet';
+        return;
+      }catch(e){}
+    }
+    box.value=csv;
+    box.hidden=false;
+    box.focus();
+    box.select();
+    toast.textContent='Copy the text below into your Google Sheet';
+  });
+
+  showView(currentHash());
+})();
+</script>
+</body>
+</html>
